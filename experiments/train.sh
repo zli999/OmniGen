@@ -1,0 +1,17 @@
+accelerate launch --num_processes=1 train.py \
+    --model_name_or_path /home/v-zijianli/ml-dl/v-zijianli/models/OmniGen-v1 \
+    --batch_size_per_device 2 \
+    --condition_dropout_prob 0.01 \
+    --lr 1e-3 \
+    --use_lora \
+    --lora_rank 8 \
+    --json_file ./toy_data/toy_subject_data.jsonl \
+    --image_path ./toy_data/images \
+    --max_input_length_limit 18000 \
+    --keep_raw_resolution \
+    --max_image_size 1024 \
+    --gradient_accumulation_steps 1 \
+    --ckpt_every 10 \
+    --epochs 200 \
+    --log_every 1 \
+    --results_dir ./results/toy_finetune_lora

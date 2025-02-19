@@ -1,0 +1,66 @@
+# For field details: https://amulet-docs.azurewebsites.net/config_file.html
+description: toy_train_omnigen
+# Docker environment (repo/image:tag)
+# Install custom dependencies in the image using the optional "image_setup" field
+# Set up the container and environment using the optional "setup" field
+# target:
+#   service: amlk8s
+#   name: itplabrr1cl1
+target:
+  service: sing
+  name: msrresrchbasicvc
+  workspace_name: msramldlwsscus
+
+# target:
+#   service: aml
+#   name: a100ibwu2
+
+environment:
+  # registry: # ex: docker.io (default), reg.azurecr.io
+  image: pytorch/pytorch:2.2.1-cuda12.1-cudnn8-devel # ex: microsoft_pytorch:v1.2.0_gpu_cuda9.0_py36_release_gpuenv_hvd0.16.2
+
+# Experiment source code. This section is optional.
+# $CONFIG_DIR is expanded to the directory of this config file.
+code:
+  local_dir: ./ # ex: $CONFIG_DIR/src
+
+storage:
+  blob:
+    storage_account_name: msramldl
+    container_name: ml-dl
+
+# Optional field.
+# data:
+#   local_dir: data/
+#   remote_dir: v-wentzhang/datasets/ImageNet
+
+# SKU usage: G1 (single GPU), G4 (quad GPU), G4-V100 (1 machine, 4 V100 gpus), etc...
+jobs:
+
+  - name: toy_train_omnigen
+    # sku: 80G4-A100-NvLink
+    sku: 80G1-A100
+    identity: managed
+    execution_mode: basic
+    sla_tier: standard
+    priority: high
+    command:
+      - nvidia-smi
+      - pwd
+      - gcc --version
+      # - export logdir=/mnt/blob/v-wentzhang/projects/lvm/outputs_may/lvm1.1b_mix-v1-probe-5.20.1
+      # - export config=configs/amlt/5.20/lvm1.1b_mix-v1-probe-5.20.1.yaml
+      # - export output_dir=/mnt/blob/v-zijianli/chartagent_results/evaluate
+      # - mkdir -p $${output_dir}
+      - echo "Training on "$${GPU_PER_NODE_COUNT}" gpus on node "$${NODE_RANK}" of "$${NODE_COUNT}" nodes"
+      - ls
+      # - python -m pip install flash-attn --no-build-isolation
+      - pip install -e .
+
+      - bash experiments/toy_train.sh
+
+    submit_args:
+      env:
+        _AZUREML_SINGULARITY_JOB_UAI: /subscriptions/e033d461-1923-44a7-872b-78f1d35a86dd/resourcegroups/ml-dl/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mldlcompute-identity
+
+
